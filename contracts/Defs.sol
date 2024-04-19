@@ -11,4 +11,19 @@ import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 
 contract Defs is Context, ReentrancyGuard {
 
-}
+    bytes32 ORDER_TYPE_BUY = bytes32("ORDER_TYPE_BUY");
+    bytes32 ORDER_TYPE_SELL = bytes32("ORDER_TYPE_SELL");
+    bytes32 TRIGGER_BY_PRICE_ACTION = bytes32("TRIGGER_BY_PRICE_ACTION");
+    bytes32 TRIGGER_BY_TIME_ACTION = bytes32("TRIGGER_BY_TIME_ACTION");
+    
+    struct JobDef {
+        bytes32 orderType;
+        bytes32 triggerBy;
+        address tokenA;
+        address tokenB;
+        address owner;
+        uint256 tokenABalance;
+        uint256 tokenASold;
+        uint    tokenBBuyRatePerTx;
+    }
+} 
