@@ -16,14 +16,11 @@ contract Base is Context, ReentrancyGuard {
     uint256 public totalJobs;
     uint256 public totalActiveJobs;
 
-    bytes32 ORDER_TYPE_BUY = bytes32("ORDER_TYPE_BUY");
-    bytes32 ORDER_TYPE_SELL = bytes32("ORDER_TYPE_SELL");
     bytes32 TRIGGER_BY_PRICE_ACTION = bytes32("TRIGGER_BY_PRICE_ACTION");
     bytes32 TRIGGER_BY_TIME_ACTION = bytes32("TRIGGER_BY_TIME_ACTION");
     
     struct Job {
         uint256 id;
-        bytes32 orderType;
         bytes32 triggerBy;
         bytes32 route;
         address tokenA;
@@ -32,6 +29,7 @@ contract Base is Context, ReentrancyGuard {
         uint256 tokenABalance;
         uint256 totalTokenASold;
         uint    tokenASellRatePerTx;
+        uint256 tokenBBalance;
         bool    isActive;
         uint256 createdAt;
         uint256 updatedAt;
@@ -40,4 +38,5 @@ contract Base is Context, ReentrancyGuard {
     mapping(uint256 => Job) public jobs;
     mapping(address => uint256[]) public jobsByAccount;
     uint256[] public activeJobsIds;
+    
 } 
