@@ -38,5 +38,46 @@ contract Factory is Ownable, Base {
         }
     }
 
+
+    function setPaused(bool _opt)
+        public
+        onlyOwner()
+    {
+        isPaused = _opt;
+    }
+
+    modifier notPaused(){
+        require(!isPaused, "DCABot: PAUSED");
+        _;
+    }
+
+    /**
+     * @dev addJob adds a new job
+     * 
+     */
+    function addJob(
+        address tokenA,
+        address tokenB,
+        uint256 amount,
+        bytes32 triggerMode,
+        bytes32 triggerAfterEvery
+    )
+        external
+        payable
+        nonReentrant()
+        notPaused()
+    {
+        if(tokenA == NATIVE_TOKEN){
+            require(amount == msg.value, "DCABot: AMOUNT_AND_VALUE_MISMATCH");
+        } else {
+            require(IERC20(tokenA).transferFrom(_msgSender(), address(this), amount), "DCABot: TRANSFER_FAILED");
+        }
+    }
+
+    function safeTransferNative(address payable to, uint256 value) internal {
+        (bool success, ) = to.call{value: value}("");
+        require(success, 'DCABot: NATIVE_TOKEN_TRANSFER_FAILED');
+    }
+
     
 }
