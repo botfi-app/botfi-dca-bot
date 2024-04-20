@@ -5,9 +5,9 @@
  */
 pragma solidity ^0.8.20;
 
-import "./Defs.sol";
+import "./Base.sol";
 
-contract Factory is Ownable, Defs {
+contract Factory is Ownable, Base {
 
     address payable protocolFeeWallet;
 
