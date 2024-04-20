@@ -44,4 +44,16 @@ contract Base is Context, ReentrancyGuard {
     mapping(address => uint256[]) public jobsByAccount;
     uint256[] public activeJobsIds;
     
+    function safeTransferNative(address payable to, uint256 value) internal {
+        (bool success, ) = to.call{value: value}("");
+        require(success, 'DCABot: NATIVE_TOKEN_TRANSFER_FAILED');
+    }
+
+    function calPercent(uint256 percentBps, uint256 amount)
+        internal 
+        pure
+        returns (uint256)
+    {
+        return (percentBps * amount) / 10_000;
+    }
 } 

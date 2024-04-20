@@ -53,31 +53,45 @@ contract Factory is Ownable, Base {
 
     /**
      * @dev addJob adds a new job
-     * 
      */
     function addJob(
         address tokenA,
         address tokenB,
         uint256 amount,
+        uint256 tokenASellRatePerTx,
         bytes32 triggerMode,
-        bytes32 triggerAfterEvery
+        uint256 triggerAfterEvery
     )
         external
         payable
         nonReentrant()
         notPaused()
     {
+        
         if(tokenA == NATIVE_TOKEN){
             require(amount == msg.value, "DCABot: AMOUNT_AND_VALUE_MISMATCH");
         } else {
             require(IERC20(tokenA).transferFrom(_msgSender(), address(this), amount), "DCABot: TRANSFER_FAILED");
         }
+
+        uint256 id = ++totalJobs;
+
+        jobs[id] = Job(
+            id,
+            triggerMode,
+            triggerAfterEvery,
+            tokenA,
+            tokenB,
+            _msgSender(),
+            amount, // tokenABalance
+            0, //totalTokenASold
+            tokenASellRatePerTx,
+            "", // routeUsed
+            true,
+            block.timestamp,
+            block.timestamp
+        );
     }
 
-    function safeTransferNative(address payable to, uint256 value) internal {
-        (bool success, ) = to.call{value: value}("");
-        require(success, 'DCABot: NATIVE_TOKEN_TRANSFER_FAILED');
-    }
-
-    
+   
 }
