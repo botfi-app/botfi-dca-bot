@@ -9,6 +9,9 @@ import "./Base.sol";
 
 contract Factory is Ownable, Base {
 
+    event NewJob(uint256 id);
+    event CancelJob(uint256 id);
+
     address payable protocolFeeWallet;
 
     constructor(address payable _feeWallet) Ownable(_msgSender()) {
@@ -52,15 +55,15 @@ contract Factory is Ownable, Base {
     }
 
     /**
-     * @dev addJob adds a new job
+     * @dev newJob adds a new job
      */
-    function addJob(
+    function newJob(
         address tokenA,
         address tokenB,
         uint256 amount,
         uint256 tokenASellRatePerTx,
         bytes32 triggerMode,
-        uint256 triggerAfterEvery
+        uint256 runAfterEvery
     )
         external
         payable
@@ -78,20 +81,42 @@ contract Factory is Ownable, Base {
 
         jobs[id] = Job(
             id,
-            triggerMode,
-            triggerAfterEvery,
-            tokenA,
-            tokenB,
+            TriggerInfo(triggerMode, runAfterEvery, 0),
+            TokenInfo(tokenA, tokenB, amount, amount, tokenASellRatePerTx),
             _msgSender(),
-            amount, // tokenABalance
-            0, //totalTokenASold
-            tokenASellRatePerTx,
             "", // routeUsed
-            true,
-            block.timestamp,
+            true, // isActive
             block.timestamp
         );
+
+        jobsByAccount[_msgSender()].push(id);
+        activeJobsIds[id] = id;
+
+        emit NewJob(id);
     }
 
-   
+    /**
+     * @dev cancels or disables a job
+     * @param id a unit256 id of the job
+     */
+    function cancelJob(uint256 id)
+        public
+        nonReentrant()
+    {
+        
+        require(jobs[id].owner == _msgSender(), "DCABot: NOT_JOB_OWNER");
+        require(jobs[id].isActive, "DCABot: JOB_NOT_ACTIVE");
+
+        uint256 remainingBalance = jobs[id].tokenInfo.tokenACurrentBalance;
+
+        if(remainingBalance > 0){
+            safeTransferToken(jobs[id].tokenInfo.tokenA, jobs[id].owner, remainingBalance);
+        }
+
+        jobs[id].tokenInfo.tokenACurrentBalance = 0;
+        jobs[id].isActive = false;
+
+        emit CancelJob(id);
+    }
+
 }

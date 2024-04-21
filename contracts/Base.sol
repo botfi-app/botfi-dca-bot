@@ -23,21 +23,29 @@ contract Base is Context, ReentrancyGuard {
     bytes32 TRIGGER_MODE_PRICE_UP    = bytes32("TRIGGER_MODE_PRICE_UP");
     bytes32 TRIGGER_MODE_PRICE_DOWN  = bytes32("TRIGGER_MODE_PRICE_DOWN");
     bytes32 TRIGGER_MODE_TIME_ACTION = bytes32("TRIGGER_BY_TIME_ACTION");
+
+    struct TriggerInfo {
+        bytes32 mode;
+        uint256 runAfter;
+        uint256 lastRunDate;
+    }
+
+    struct TokenInfo {
+        address tokenA;
+        address tokenB;
+        uint256 tokenAStartBalance;
+        uint256 tokenACurrentBalance;
+        uint256 tokenASellRatePerTx;
+    }
     
     struct Job {
         uint256 id;
-        bytes32 triggerMode;
-        uint256 triggerAfterEvery;
-        address tokenA;
-        address tokenB;
-        address owner;
-        uint256 tokenABalance;
-        uint256 totalTokenASold;
-        uint    tokenASellRatePerTx;
-        bytes32 routeUsed;
-        bool    isActive;
-        uint256 createdAt;
-        uint256 updatedAt;
+        TriggerInfo  triggerInfo;
+        TokenInfo    tokenInfo;
+        address      owner;
+        bytes32      routeUsed;
+        bool         isActive;
+        uint256      createdAt;
     }
 
     mapping(uint256 => Job) public jobs;
@@ -47,6 +55,21 @@ contract Base is Context, ReentrancyGuard {
     function safeTransferNative(address payable to, uint256 value) internal {
         (bool success, ) = to.call{value: value}("");
         require(success, 'DCABot: NATIVE_TOKEN_TRANSFER_FAILED');
+    }
+
+
+    function safeTransferToken(
+        address token,
+        address to,
+        uint256 amount
+    )
+        internal 
+    {
+        if(token == NATIVE_TOKEN){
+            safeTransferNative(payable(to), amount);
+        } else {
+            require(IERC20(token).transfer(to, amount), "DCABot: ERC20_TOKEN_TRANSFER_FAILED");
+        }
     }
 
     function calPercent(uint256 percentBps, uint256 amount)

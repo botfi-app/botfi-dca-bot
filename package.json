@@ -2,6 +2,10 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2"
   },
+  
+  "scripts": {
+    "c": "npx hardhat compile"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "hardhat": "^2.22.3"
