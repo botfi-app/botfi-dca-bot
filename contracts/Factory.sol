@@ -96,6 +96,25 @@ contract Factory is Ownable, Base {
     }
 
     /**
+     * @dev runJob run the job using job id
+     * @param id the jobId
+     * @param routeId the route to use
+     */
+    function runJob(
+        uint256 id,
+        bytes32 routeId
+    )
+        public
+        nonReentrant()
+        notPaused()
+    {
+        require(jobs[id].createdAt > 0, "DCABot: UNKNOWN_JOB");
+        require(jobs[id].isActive, "DCABot: JOB_NOT_ACTIVE");
+
+        
+    }
+
+    /**
      * @dev cancels or disables a job
      * @param id a unit256 id of the job
      */
